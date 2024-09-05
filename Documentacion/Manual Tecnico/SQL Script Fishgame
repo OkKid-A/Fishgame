@@ -1,0 +1,105 @@
+SQL Script Fishgame
+
+CREATE TABLE `Fishgame`.`user` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NOT NULL,
+  `password` CHAR(64) NOT NULL,
+  `age` INT(2) NOT NULL,
+  `quick_time` TIME NULL,
+  `max_points` INT NULL,
+  PRIMARY KEY (`id`));
+
+
+    CREATE TABLE `Fishgame`.`trofico` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  `jerarquia` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `jerarquia_UNIQUE` (`jerarquia` ASC) VISIBLE);
+ 
+ CREATE TABLE `Fishgame`.`personaje` (
+  `user_id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `puntos` INT UNSIGNED NULL,
+  `nombre` VARCHAR(45) NOT NULL,
+  `nivel` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_personaje_user_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_personaje_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `Fishgame`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+    INDEX `fk_personaje_trofico_idx` (`nivel` ASC) VISIBLE,
+   CONSTRAINT `fk_personaje_trofico`
+  FOREIGN KEY (`nivel`)
+  REFERENCES `Fishgame`.`trofico` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+CREATE TABLE `Fishgame`.`categoria_parte` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  `tipo` VARCHAR(45) NOT NULL,
+  `nivel` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_categoria_trofico_idx` (`nivel` ASC) VISIBLE,
+  CONSTRAINT `fk_categoria_trofico`
+    FOREIGN KEY (`nivel`)
+    REFERENCES `Fishgame`.`trofico` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE);
+
+    CREATE TABLE `Fishgame`.`parte` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  `valor_actual` DOUBLE NOT NULL,
+  `valor` DOUBLE NOT NULL,
+  `categoria` INT UNSIGNED NOT NULL,
+  `imagen` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_parte_categoria_idx` (`categoria` ASC) VISIBLE,
+  CONSTRAINT `fk_parte_categoria`
+    FOREIGN KEY (`categoria`)
+    REFERENCES `Fishgame`.`categoria_parte` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+    CREATE TABLE `Fishgame`.`parte_usuario` (
+  `parte` INT UNSIGNED NOT NULL,
+  `usuario` INT NOT NULL,
+  PRIMARY KEY (`parte`, `usuario`),
+  CONSTRAINT `fk_parteus_parte`
+    FOREIGN KEY (`parte`)
+    REFERENCES `Fishgame`.`parte` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_parteus_user`
+    FOREIGN KEY (`usuario`)
+    REFERENCES `Fishgame`.`user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE);
+
+    CREATE TABLE `Fishgame`.`parte_personaje` (
+  `personaje` INT UNSIGNED NOT NULL,
+  `parte` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`personaje`, `parte`),
+  INDEX `fk_parteper_parte_idx` (`parte` ASC) VISIBLE,
+  CONSTRAINT `fk_parteper_personaje`
+    FOREIGN KEY (`personaje`)
+    REFERENCES `Fishgame`.`personaje` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_parteper_parte`
+    FOREIGN KEY (`parte`)
+    REFERENCES `Fishgame`.`parte` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE CASCADE);
+
+ALTER TABLE `Fishgame`.`user` 
+ADD COLUMN `correo` VARCHAR(45) NOT NULL AFTER `max_points`,
+ADD COLUMN `oro` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `correo`;
+ADD UNIQUE INDEX `correo_UNIQUE` (`correo` ASC) VISIBLE,
+ADD UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE;
+;
